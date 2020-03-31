@@ -1,0 +1,250 @@
+#include "pch.h"
+#include <iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+constexpr	size_t MAX_N = 60000;
+constexpr size_t capacity = 40;
+template<typename T>
+class SortedLinkedList {
+public:  
+	struct Node {
+		T x;
+		Node* prev;
+		Node* next;
+	
+	    };
+		Node* temp;
+		int s = 0;
+		int size() { return s; };
+		SortedLinkedList()
+		{
+		temp = new Node;
+			temp->next = nullptr;
+			temp->prev = nullptr;
+		};
+		
+		
+		SortedLinkedList(SortedLinkedList<T>& a)
+		{
+
+		//	temp = new Node;
+			temp->next = nullptr;
+			temp->prev = nullptr;
+			while (a.size()) push(a.pop());
+		};
+		using position_t = Node * ;
+		
+		void print() {
+			Node* p = temp->next;
+			while (p) {
+				cout << p->x << " ";
+				p = p->next;
+			}
+		};
+		void push(const T& k) 
+		{
+			Node* temp1 = temp->next;
+			while (temp1 && temp1->x <= k) {
+				temp1 = temp1->next;
+			}
+			if (!temp1) push_back(k); else
+				insert_before(temp1, k);
+		};
+		
+		template<typename U>
+		void push(U&& obj) {
+			
+			Node* temp1 = temp->next;
+			while (temp1 && temp1->x <= obj) {
+				temp1 = temp1->next;
+			}
+			if (!temp1) push_back(forward<U>(obj)); else
+				insert_before(temp1, forward<U>(obj));
+			
+		};
+		
+		void push_front(const T& v) {
+			Node * p;
+			p = new Node;
+			p->x = v;
+
+			p->prev = nullptr;
+			p->next = temp->next;
+			temp->next = p;
+			s++;
+			if (p->next) p->next->prev = p;
+			else temp > prev = p;
+		};
+		
+		template<typename U>
+		void push_front(U&& v) {
+			
+			Node * p;
+			p = new Node;
+			p->x = move(v);
+
+			p->prev = nullptr;
+			p->next = temp->next;
+			temp->next = p;
+			s++;
+			if (p->next) p->next->prev = p;
+			else temp->prev = p;
+		};
+		
+		void insert_before(Node* e, const T& v) {
+			Node * p;
+
+			if (e == temp->next) push_front(v);
+			else
+			{
+				p = new Node;
+				p->x = v;
+				p->next = e;
+				p->prev = e->prev;
+				e->prev->next = p;
+				e->prev = p;
+				s++;
+			}
+		};
+		
+		template<typename U>
+		void insert_before(Node* e, U&& v) {
+			Node * p;
+
+			if (e == temp->next) push_front(forward<U>(v));
+			else
+			{
+				p = new Node;
+				p->x = move(v);
+				p->next = e;
+				p->prev = e->prev;
+				e->prev->next = p;
+				e->prev = p;
+				s++;
+			}
+		};
+		
+		void push_back(const T& v) {
+			Node* p = new Node;
+			p->x = v;
+			p->next = nullptr;
+			p->prev = nullptr;
+
+			p->prev = temp->prev;
+			temp->prev = p;
+			s++;
+			if (p->prev) p->prev->next = p;
+			else temp->next = p;
+		};
+		
+		template<typename U>
+		void push_back(U&& v) {
+			Node* p = new Node;
+			p->x = move(v);
+			p->next = nullptr;
+			p->prev = nullptr;
+
+			p->prev = temp->prev;
+			temp->prev = p;
+			s++;
+			if (p->prev) p->prev->next = p;
+			else temp->next = p;
+		};
+	};
+          using position_t = int;
+
+			template<typename T>
+			class SortedList 
+			{
+
+			private:
+
+				T* arr;
+				size_t s;
+
+			public:
+				
+				SortedList(T a[], size_t s)
+				{
+					arr = new T[capacity];
+					this->s = s;
+					for (int i = 0; i < s; i++)
+					{
+						arr[i] = a[i];
+					}
+				};
+				SortedList(SortedList<T>&& a) {
+
+					for (int i = 0; i < a.size(); i++) {
+						push(a.at(i));
+					}
+				};
+				int size() { return s; };
+				void push(T x) {
+					{
+						if (this->s + 1 < MAX_N) {
+							T* it = lower_bound(arr, arr + s, x);
+							if (it == arr + s) {
+								*(arr + s) = x;
+							}
+							else {
+								T temp;
+								while (it != arr + s + 1) {
+									temp = *it;
+									*it = x;
+									x = temp;
+									it++;
+								}
+							}
+							s++;
+						}
+					}
+				};
+				T pop() {
+
+					T k = arr[0];
+					for (int i = 0; i < s; i++)
+					{
+						arr[i] = arr[i + 1];
+					}
+					s--;
+					return k;
+				};
+				void print() {
+
+					for (int i = 0; i < s; i++)
+					{
+						cout << arr[i] << " ";
+					}
+
+				};
+
+
+			};
+
+			
+
+				
+				
+	
+
+int main()
+{ 
+	SortedLinkedList<int> a;
+	a.push(5);
+	a.push(7);
+	a.push(8);
+	int b = 1;
+	a.push(b);
+	a.print();
+	cout << endl;
+	int arr[1] = { 2 };
+	SortedList <int> c(arr, 1);
+	c.push(5);
+	c.push(7);
+	c.push(8);
+	 b = 10;
+	c.push(b);
+	c.print();
+}
