@@ -1,0 +1,312 @@
+#include "pch.h"
+#include <iostream>
+#include <chrono>
+#include <random>
+using namespace std;
+template<typename T>
+class SortedLinkedList {
+public:  // Klasa listy
+	//using position_t = Node * ;
+	struct Node {       // Zagnieżdżona klasa węzła
+		T x;            // Element przechowywany przez węzeł listy
+		Node* prev;     // Wskaźnik do poprzedniego węzła
+		Node* next;     // Wskaźnik do kolejnego węzła
+		Node(T d) {     // Konstruktor jednoargumentowy.
+			x = d;      // Przypisanie wartości podczas konstrukcji.
+			next = nullptr;
+			prev = nullptr;
+		}
+	};
+	
+	SortedLinkedList<T>();
+
+	Node* head;            // Wskaźnik do pierwszego węzła
+	Node* tail;            // Wskaźnik do ostatniego węzła
+	int s = 0;               // Ew. rozmiar listy
+	void push(T k);        // + +Wstawia element 'k'
+	int size();            // + +Zwraca liczbę elementów w liście
+	T erase(int i); // + -Usuwa element na pozycji 'i' i zwraca jego wartość
+	void print();          // + +Wypisuje elementy listy (w porządku rosnącym)
+	
+};
+template <typename T>
+SortedLinkedList<T>::SortedLinkedList() {
+	head = nullptr;
+	tail = nullptr;
+}
+template <typename T>
+void SortedLinkedList<T>::push(T k)
+{
+	
+	s++;
+	Node* temp = new Node(k);
+	if (head != nullptr) // sa elementy w liscie
+	{
+		if ((head->x) > k)//wstawianie przed head
+		{
+			temp->prev = nullptr;
+			temp->next = head;
+			head = temp;
+		}
+		else
+		{
+			if ((tail->x) <= k)//wstawianie po tail
+			{
+				//cout << " dla cem";
+				temp->next = nullptr;
+				temp->prev = tail;
+				tail = temp;
+				temp->prev->next = temp;
+			}
+			else //wstawianie miendzy head i tail
+			{
+				Node* temp1 = head;
+				while (((temp1->next) != nullptr) && ((temp1->next)->x < k))
+				{
+					temp1 = temp1->next;
+				}
+				temp->next = temp1->next;
+				temp->prev = temp1;
+				temp1->next->prev = temp;
+				temp1->next = temp;
+
+			}
+		}
+	}
+	else //pusta lista
+	{
+		temp->prev = nullptr;
+		temp->next = head;
+		head = temp;
+		tail = temp;
+		temp->next = nullptr;
+	}
+	
+}
+template <typename T>
+void SortedLinkedList<T>::print()
+{
+	
+		
+		Node* temp = head;
+		while (temp != nullptr) { cout << temp->x << " "; temp = temp->next; }
+	    temp = tail;
+		cout << endl;
+		while (temp != nullptr) { cout << temp->x << " "; temp = temp->prev; }
+
+		
+	
+}
+template <typename T>
+int SortedLinkedList<T>::size()
+{
+	return s;
+}
+template <typename T>
+T SortedLinkedList<T>::erase(int i)
+{
+	
+	bool b = false;
+
+	Node* temp = head;
+	if (i == 0) {
+		T k = head->x;
+		s--;
+		Node* temp = head;
+
+
+		if (head->next != nullptr)
+		{
+			head = temp->next;
+			temp->next->prev = nullptr;
+		}
+		else { head = nullptr; tail = nullptr; }
+		delete temp;
+		b = true;
+		return k;
+	}
+	if (b == false) {
+		if (i == (s - 1))
+		{
+			T k = tail->x;
+			s--;
+			Node* temp = tail;
+			if (tail->prev != nullptr)
+			{
+				tail = temp->prev;
+				temp->prev->next = nullptr;
+			}
+			else { tail = nullptr; head = nullptr; }
+			delete temp;
+			b = true;
+			return k;
+
+		}
+	}
+	if (b == false)
+	{
+		Node* temp = head;
+		for (int j = 0; j < i - 1; j++)
+		{
+			temp = temp->next;
+		}
+		s--;
+		T k = temp->next->x;
+		temp->next = (temp->next)->next;
+		temp->next->prev = temp;
+		return k;
+	}
+
+
+	
+}
+constexpr size_t capacity = 60000;
+
+template <typename T>
+class SortedList {
+private:
+	T *p;
+	size_t s;
+	using position_t = int;
+public:
+	SortedList(T arr[], size_t s);
+	void print();
+	void push(T x);
+	int size();
+	T erase(position_t i);
+	 
+};
+template <typename T>
+SortedList<T>::SortedList(T arr[], size_t s) {
+	p = new T[capacity];
+	this->s = s;
+	for (int i = 0; i < s; i++)
+	{
+		p[i] = arr[i];
+	}
+}
+template <typename T>
+void SortedList<T>::print() {
+	for (int i = 0; i < s; i++)
+		cout << " " << *(p + i);
+	cout << endl;
+}
+template <typename T>
+T SortedList<T>::erase(position_t i)
+{
+	
+	T k = p[i];
+	for (int j = i; j < s; j++)
+	{
+		p[j] = p[j + 1];
+	}
+	s--;
+	//cout << "POZICIA" << endl;
+	return k;
+	
+}
+template <typename T>
+void SortedList<T>::push(T x)  // Wstawia element 'x'
+{
+	
+	p[s] = x;
+	int j = s;
+	while (p[j] < p[j - 1])
+	{
+		T k = p[j];
+		p[j] = p[j - 1];
+		//p[j - 1] = k;
+		j--;
+	}
+	s++;
+	
+}
+template <typename T>
+int SortedList<T>::size()// Zwraca liczbę elementów w liście
+{
+	return s;
+}
+
+
+int main()
+{
+	int l1;
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> dis(1, 50);
+	SortedLinkedList<int>a;//lista dwuk
+	int ar1[51]; //imp tabl
+	SortedList <int> b(ar1, 0);//imp tabl
+	a.push(3);
+	//PUSH 50000 EL TAB
+    {
+		auto start = chrono::high_resolution_clock::now();
+		for (int i = 0; i < 50000; i++)
+		{
+			uniform_int_distribution<> dis(0, 50000 );
+			l1 = dis(gen);
+			b.push(l1);
+		}
+		auto end = chrono::high_resolution_clock::now();
+		chrono::duration<double> elapsed = end - start;
+		cerr << "Elapsed time[PUSH 50000 EL TAB] = " << elapsed.count() << endl;
+		cout << endl;
+	}
+	//PUSH 50000 EL LIST
+	{
+		auto start = chrono::high_resolution_clock::now();
+		for (int i = 0; i < 50000; i++)
+		{
+			uniform_int_distribution<> dis(0, 50000);
+			l1 = dis(gen);
+			a.push(l1);
+
+		}
+		auto end = chrono::high_resolution_clock::now();
+		chrono::duration<double> elapsed = end - start;
+		cerr << "Elapsed time[PUSH 50000 EL LIST] = " << elapsed.count() << endl;
+		cout << endl;
+	}
+	//ERESE 50000 EL TAB
+	{
+		auto start = chrono::high_resolution_clock::now();
+		for (int i = 0; i < 50000; i++)
+		{
+			uniform_int_distribution<> dis(0, 50000 - i - 1);
+			l1 = dis(gen);
+			b.erase(1);
+		}
+		auto end = chrono::high_resolution_clock::now();
+		chrono::duration<double> elapsed = end - start;
+		cerr << "Elapsed time[ERESE 50000 EL TAB] = " << elapsed.count() << endl;
+		cout << endl;
+	}
+	//ERESE 50000 EL LIST
+	{
+		auto start = chrono::high_resolution_clock::now();
+		for (int i = 0; i < 50000; i++)
+		{
+			uniform_int_distribution<> dis(0, 50000 - i - 1);
+			l1 = dis(gen);
+			a.erase(l1);
+		}
+		auto end = chrono::high_resolution_clock::now();
+		chrono::duration<double> elapsed = end - start;
+		cerr << "Elapsed time[ERESE 50000 EL LIST] = " << elapsed.count() << endl;
+		cout << endl;
+	}
+	
+
+	//cout << endl;
+	//cout << a.size() << endl;
+	//a.print(); cout << endl;
+	//b.print();
+	
+
+		
+//	a.print(); cout << endl;
+//	b.print();
+
+
+
+}
