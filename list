@@ -1,0 +1,365 @@
+#include "pch.h"
+#include <iostream>
+using namespace std;
+template<typename T>
+class SortedLinkedList {  
+public:  // Klasa listy
+	//using position_t = Node * ;
+	struct Node {       // Zagnieżdżona klasa węzła
+		T x;            // Element przechowywany przez węzeł listy
+		Node* prev;     // Wskaźnik do poprzedniego węzła
+		Node* next;     // Wskaźnik do kolejnego węzła
+		Node(T d) {     // Konstruktor jednoargumentowy.
+			x = d;      // Przypisanie wartości podczas konstrukcji.
+			next = nullptr;
+			prev = nullptr;
+		}
+	};
+
+	SortedLinkedList<T>();
+	using position_t = Node * ;
+	Node* head;            // Wskaźnik do pierwszego węzła
+	Node* tail;            // Wskaźnik do ostatniego węzła
+	int s=0;               // Ew. rozmiar listy
+	void push(T k);        // + +Wstawia element 'k'
+	T pop();               // + +Zwraca i usuwa pierwszy (najmniejszy) element
+	T pop1();              // + +Zwraca pierwszy (najmniejszy) element  
+	T erase(int i);        // + +Usuwa element na pozycji 'i' i zwraca jego wartość
+	
+    int find(T k); // Zwraca pozycję elementu o wartości 'k' lub -1 gdy nie znaleziono
+	int size();            // + +Zwraca liczbę elementów w liście
+	void remove(T k);      // + +Usuwa wszystkie elementy równe 'k'
+	static SortedLinkedList merge(SortedLinkedList a, SortedLinkedList b);// + +Scala dwie posortowane listy i zwraca posortowaną listę
+	void unique();         // + +Usuwa sąsiadujące duplikaty
+	void print();          // + +Wypisuje elementy listy (w porządku rosnącym)
+	bool tru();            // + +Zwraca true, jezeli lista nie pusta
+}; 
+
+template <typename T>
+SortedLinkedList<T>::SortedLinkedList() {
+	head = nullptr;
+	tail = nullptr;
+}
+
+	template <typename T>
+	void SortedLinkedList<T>::push(T k)
+	{
+		s++;
+		Node* temp = new Node(k);
+		if (head!= nullptr) // sa elementy w liscie
+		{
+			if((head->x) > k)//wstawianie przed head
+			{
+				temp->prev = nullptr;
+				temp->next = head;
+				head = temp;
+				temp->next->prev = temp;
+			}
+			else 
+			{
+				if((tail->x)<=k)//wstawianie po tail
+				{
+					
+					temp->next = nullptr;
+					temp->prev = tail;
+					tail = temp;
+					temp->prev->next = temp;
+				}
+				else //wstawianie miendzy head i tail
+				{
+					Node* temp1 = head;
+					while (((temp1->next)!=nullptr) && ((temp1->next)->x < k))
+					{
+						temp1 = temp1->next;
+					}
+					temp->next = temp1->next;
+					temp->prev = temp1;
+					temp1->next->prev = temp;
+					temp1->next = temp;
+					
+				}
+			}
+		}
+	
+	    else //pusta lista
+		{
+			temp->prev = nullptr;
+			temp->next = head;
+			head = temp;
+			tail = temp;
+			temp->next = nullptr;
+		}
+	
+
+    }
+
+template <typename T>
+T SortedLinkedList<T>::pop()
+{
+	
+	T k = head->x;
+	s--;
+	Node* temp = head;
+	
+	
+	if (head->next!= nullptr)
+	{
+		head = temp->next;
+		temp->next->prev = nullptr;
+	}
+	else { head = nullptr; tail = nullptr; }
+	delete temp;
+	return k;
+}
+template <typename T>
+T SortedLinkedList<T>::pop1()
+{
+	T k = head->x;
+	
+	return k;
+}
+template <typename T>
+T SortedLinkedList<T>::erase(int i)
+{
+	bool b = false;
+
+	Node* temp = head;
+	if (i == 0) {
+		T k = head->x;
+		s--;
+		Node* temp = head;
+
+
+		if (head->next != nullptr)
+		{
+			head = temp->next;
+			temp->next->prev = nullptr;
+		}
+		else { head = nullptr; tail = nullptr; }
+		delete temp;
+		b = true;
+		return k;
+	}
+	if (b == false) {
+		if (i == (s - 1))
+		{
+			T k = tail->x;
+			s--;
+			Node* temp = tail;
+			if (tail->prev != nullptr)
+			{
+				tail = temp->prev;
+				temp->prev->next = nullptr;
+			}
+			else { tail = nullptr; head = nullptr; }
+			delete temp;
+			b = true;
+			return k;
+
+		}
+	}
+	if (b == false)
+	{
+		Node* temp = head;
+		for (int j = 0; j < i - 1; j++)
+		{
+			temp = temp->next;
+		}
+		s--;
+		T k = temp->next->x;
+		temp->next = (temp->next)->next;
+		temp->next->prev = temp;
+		return k;
+	}
+}
+template <typename T>
+int SortedLinkedList<T>::find(T k ) 
+{
+	Node* temp = head;
+	int l=0;
+	bool t = false;
+	while ((temp->next != nullptr) && (temp->x <= k))
+	{
+		if ((temp->x == k)&&(t==false)) { return k; t = true; }
+		temp = temp->next;
+	}
+	if (t == false) { return -1; }
+}
+
+template <typename T>
+int SortedLinkedList<T>::size() 
+{return s;}
+
+template <typename T>
+void SortedLinkedList<T>::remove(T k)
+{
+ cout << "remove:" << k << " <-";
+ if ((head->x) == k)
+ {
+	 while ((head->x) == k)
+	 {
+		 Node* temp = head;
+		 s--;
+		 head = temp->next; 
+		 temp->next->prev = nullptr;
+		 delete temp;
+	 }
+ }
+ else {
+	 if ((tail->x) == k)
+	 {
+		 while ((tail->x) == k)
+		 {
+			 Node* temp = tail;
+			 s--;
+			 tail = temp->prev;
+			 temp->prev->next = nullptr;
+			 delete temp;
+		 }
+	 }
+	 else
+	 {
+		 Node* temp = head;
+		 while (((temp->next) != nullptr) && ((temp->next)->x <= k))
+		 {
+			 if (((temp->next)->x) == k)
+			 {
+				 while ((((temp->next)->x) == k)) 
+				 {
+					 s--;
+					 temp->next = (temp->next)->next;
+					 temp->next->next->prev = temp;
+                 }
+			 }
+			 temp = temp->next;
+		 }
+	 }
+ }
+ 
+ 
+
+
+}
+template <typename T>
+void SortedLinkedList<T>::unique() 
+{
+	Node* temp = head;
+	while ((temp->next->next) != nullptr)
+	{
+
+		while ((((temp->next)->x) == (temp->x)) && ((temp->next->next->next) != nullptr))
+		{
+			s--;
+			temp->next = (temp->next)->next;
+			temp->next->prev = temp;
+		}
+
+		temp = temp->next;
+	}
+
+	if ((tail->prev != nullptr) && ((tail->x) == ((tail->prev)->x)))
+	{
+		while (((tail->x) == ((tail->prev)->x)))
+		{
+
+			Node* temp = tail;
+			s--;
+			tail = temp->prev;
+			temp->prev->next = nullptr;
+			delete temp;
+		}
+	}
+	if ((temp->prev->prev != nullptr) && ((tail->prev->x) == (tail->prev->prev->x)))
+	{
+		tail->prev = tail->prev->prev;
+		tail->prev->next = tail;
+	}
+}
+template <typename T>
+bool SortedLinkedList<T>::tru()
+{
+	if (head != nullptr) { return true; }
+	else return  false;
+}
+
+template <typename T>
+void SortedLinkedList<T>::print() 
+{
+	Node* temp = head;
+	while (temp != nullptr) { cout << temp->x << " "; temp = temp->next; } cout << endl;
+	 temp =tail;
+	 while (temp != nullptr) {
+		 cout << temp->x << " "; temp = temp->prev;
+	 }
+}
+template <typename T>
+SortedLinkedList<T> SortedLinkedList<T>::merge(SortedLinkedList a, SortedLinkedList b) 
+{
+	SortedLinkedList<T>c;
+	while (a.tru()*b.tru() != 0)
+	{
+		if (a.pop1() <= b.pop1()) 
+		{
+			c.push(a.pop());
+			
+		}
+		else
+		{
+			c.push(b.pop());
+		}
+	}
+	if (a.tru() != 0) { while (a.tru() == 1) { c.push(a.pop()); } }
+	if (b.tru() != 0) { while (b.tru() == 1) { c.push(b.pop()); } }
+	//c.print();
+	return c;
+}
+
+
+ int main()
+ {
+	
+	 SortedLinkedList<int>a;
+	 SortedLinkedList<int>b;
+	 
+	 //cout << a.find1(5);
+	 //SortedLinkedList<int> ar2 = SortedLinkedList<int>::merge(a, b);
+	 a.push(8);
+	 a.push(2);
+	 a.push(4);
+	 a.push(3);
+	 a.push(9);
+	 a.push(1);
+	 a.push(0);
+	 a.print(); cout <<endl;
+	 a.pop();
+	 a.print(); cout << endl;
+	 cout <<a.find(3)<<endl;
+	 cout << a.find(10) << endl;
+	 
+	 // a.unique();
+	 //a.print(); 
+	
+	 //a.erase(2);
+	 //cout << a.find(2)<< endl;
+	 //a.remove(3); cout << "   " << endl;
+	 //a.remove(8); cout << "   " << endl;
+	 //a.remove(5); cout << "   " << endl;
+	 //a.remove(4); cout << "   " << endl;
+	
+	// a.unique();
+	//cout << a.size() << endl;
+	//cout << a.pop() << endl;
+	//cout << a.pop() << endl;
+	
+	 // cout <<  a.erase(1);
+	//a.print(); 
+	//a.push(8);
+	//a.push(6);
+	//a.print();
+	//cout << " <-unigue  " << endl;
+
+	 
+
+     
+}
+
