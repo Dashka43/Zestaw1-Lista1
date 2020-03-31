@@ -1,0 +1,445 @@
+#include "pch.h"
+#include <iostream>
+#include <list> 
+#include <random>
+
+using namespace std;
+template<typename T>
+class SortedLinkedList {
+public:  // Klasa listy
+	//using position_t = Node * ;
+	struct Node {       // Zagnieżdżona klasa węzła
+		T x;            // Element przechowywany przez węzeł listy
+		Node* prev;     // Wskaźnik do poprzedniego węzła
+		Node* next;     // Wskaźnik do kolejnego węzła
+		Node(T d) {     // Konstruktor jednoargumentowy.
+			x = d;      // Przypisanie wartości podczas konstrukcji.
+			next = nullptr;
+			prev = nullptr;
+		}
+	};
+	using position_t = Node * ;
+	SortedLinkedList<T>();
+	Node* head;            // Wskaźnik do pierwszego węzła
+	Node* tail;
+	void push(T k);
+    static SortedLinkedList merge(SortedLinkedList a, SortedLinkedList b);// + +Scala dwie posortowane listy i zwraca posortowaną listę
+	static SortedLinkedList merge1(SortedLinkedList a, SortedLinkedList b);
+    bool tru();            // + +Zwraca true, jezeli lista nie pusta
+	void print();
+	int s = 0;
+	T pop();               // + +Zwraca i usuwa pierwszy (najmniejszy) element
+	T pop1();
+	void unique();
+};
+using position_t = int;      // int dla implementacji tablicowej i kursorowej
+
+constexpr size_t capacity = 40;
+template <typename T>
+class SortedList {
+private:
+	T *p;
+	size_t s;
+	using position_t = int;
+public:
+	SortedList(T arr[], size_t s);
+	void print();
+	void push(T x);
+	T pop();
+	int size();
+	T erase1(position_t i);
+	position_t find(T x);
+    static SortedList merge(SortedList a, SortedList b);
+	static SortedList merge1(SortedList a, SortedList b);
+
+};
+template <typename T>
+SortedLinkedList<T>::SortedLinkedList() {
+	head = nullptr;
+	tail = nullptr;
+}
+
+template <typename T>
+SortedList<T>::SortedList(T arr[], size_t s) {
+	p = new T[capacity];
+	this->s = s;
+	for (int i = 0; i < s; i++)
+	{
+		p[i] = arr[i];
+	}
+}
+template <typename T>
+void SortedLinkedList<T>::unique()
+{
+	Node* temp = head;
+	if (tail != head) {
+		while ((temp->next->next) != nullptr)
+		{
+
+			while ((((temp->next)->x) == (temp->x)) && ((temp->next->next->next) != nullptr))
+			{
+				s--;
+				temp->next = (temp->next)->next;
+				temp->next->prev = temp;
+			}
+
+			temp = temp->next;
+		}
+
+		if ((tail->prev != nullptr) && ((tail->x) == ((tail->prev)->x)))
+		{
+			while (((tail->x) == ((tail->prev)->x))&& (tail->prev != nullptr))
+			{
+
+				Node* temp = tail;
+				s--;
+				tail = temp->prev;
+				temp->prev->next = nullptr;
+				delete temp;
+			}
+		}
+		if ((temp->prev->prev != nullptr) && ((tail->prev->x) == (tail->prev->prev->x)))
+		{
+			tail->prev = tail->prev->prev;
+			tail->prev->next = tail;
+		}
+	}
+}
+template <typename T>
+position_t SortedList<T>::find(T i) // Zwraca pozycję elementu o wartości 'x' lub -1 gdy nie znaleziono
+{
+	int j = 0;
+	while ((p[j] != i) && (j < s))
+	{
+		j++;
+	}
+	if (p[j] == i)  return j;
+	else
+		return -1;
+}
+template <typename T>
+SortedList<T> SortedList<T>::merge(SortedList a, SortedList b) {
+	T* t = new T[a.size() + b.size()];
+	int i = 0, j = 0, k = 0;
+	while (i < a.size() && j < b.size())
+	{
+		if (a.erase1(i) <= b.erase1(j))
+		{
+			t[k] = a.erase1(i);
+			i++;
+			k++;
+		}
+		else
+		{
+			t[k] = b.erase1(j);
+			j++;
+			k++;
+		}
+	}
+	if (i < a.size())
+	{
+		for (int ii = i; ii < a.size(); ii++)
+		{
+			t[k] = a.erase1(ii);
+			k++;
+		}
+
+	}
+	if (j < b.size())
+	{
+		for (int ii = j; ii < b.size(); ii++)
+		{
+			t[k] = b.erase1(ii);
+			k++;
+		}
+
+	}
+	
+	return SortedList<T>(t, a.size() + b.size());
+	// return i;
+};
+template <typename T>
+SortedList<T> SortedList<T>::merge1(SortedList a, SortedList b) {
+	T* t = new T[a.size() + b.size()];
+	int i = 0, j = 0, k = 0;
+	while (i < a.size() && j < b.size())
+	{
+		if (a.erase1(i) <= b.erase1(j))
+		{
+			t[k] = a.erase1(i);
+			i++;
+			k++;
+		}
+		else
+		{
+			t[k] = b.erase1(j);
+			j++;
+			k++;
+		}
+	}
+	if (i < a.size())
+	{
+		for (int ii = i; ii < a.size(); ii++)
+		{
+			t[k] = a.erase1(ii);
+			k++;
+		}
+
+	}
+	if (j < b.size())
+	{
+		for (int ii = j; ii < b.size(); ii++)
+		{
+			t[k] = b.erase1(ii);
+			k++;
+		}
+
+	}
+	int j1 = a.size()+ b.size();
+	int si = a.size() + b.size();
+	
+	while (j1 > 0)
+	{
+		if (t[j1] == t[j1 - 1])
+		{
+			for (int i = j1; i < si; i++)
+			{
+				//cout <<"index   "<< j << "element   " << p[j] <<  endl;
+				t[i] = t[i + 1];
+				
+			}
+			si--;
+		}
+		j1--;
+
+	}
+
+	return SortedList<T>(t, si);
+	// return i;
+};
+template <typename T>
+T SortedList<T>::erase1(position_t i)
+{
+	T k = p[i];
+	//cout << "POZICIA" << endl;
+	return k;
+}
+template <typename T>
+T SortedList<T>::pop() // Zwraca i usuwa pierwszy (najmniejszy) element
+{
+	T k = p[0];
+	for (int i = 0; i < s; i++)
+	{
+		p[i] = p[i + 1];
+	}
+	s--;
+	return k;
+
+};
+template <typename T>
+int SortedList<T>::size()// Zwraca liczbę elementów w liście
+{
+	return s;
+}
+template <typename T>
+void SortedList<T>::push(T x)  // Wstawia element 'x'
+{
+	p[s] = x;
+	int j = s;
+	while (p[j] < p[j - 1])
+	{
+		T k = p[j];
+		p[j] = p[j - 1];
+		p[j - 1] = k;
+		j--;
+	}
+	s++;
+}
+template <typename T>
+void SortedList<T>::print() {
+	for (int i = 0; i < s; i++)
+		cout << " " << *(p + i);
+	cout << endl;
+}
+
+
+template <typename T>
+void SortedLinkedList<T>::push(T k)
+{
+	s++;
+	Node* temp = new Node(k);
+	if (head != nullptr) // sa elementy w liscie
+	{
+		if ((head->x) > k)//wstawianie przed head
+		{
+			temp->prev = nullptr;
+			temp->next = head;
+			head = temp;
+			temp->next->prev = temp;
+		}
+		else
+		{
+			if ((tail->x) <= k)//wstawianie po tail
+			{
+				//cout << " dla cem";
+				temp->next = nullptr;
+				temp->prev = tail;
+				tail = temp;
+				temp->prev->next = temp;
+			}
+			else //wstawianie miendzy head i tail
+			{
+				Node* temp1 = head;
+				while (((temp1->next) != nullptr) && ((temp1->next)->x < k))
+				{
+					temp1 = temp1->next;
+				}
+				temp->next = temp1->next;
+				temp->prev = temp1;
+				temp1->next->prev = temp;
+				temp1->next = temp;
+
+			}
+		}
+	}
+
+	else //pusta lista
+	{
+		temp->prev = nullptr;
+		temp->next = head;
+		head = temp;
+		tail = temp;
+		temp->next = nullptr;
+	}
+
+
+}
+template <typename T>
+T SortedLinkedList<T>::pop()
+{
+	T k = head->x;
+	s--;
+	Node* temp = head;
+
+
+	if (temp->next != nullptr)
+	{
+		head = temp->next;
+		temp->next->prev = nullptr;
+	}
+	else { head = nullptr; tail = nullptr; }
+	delete temp;
+	return k;
+}
+template <typename T>
+T SortedLinkedList<T>::pop1()
+{
+	T k = head->x;
+
+	return k;
+}
+template <typename T>
+void SortedLinkedList<T>::print()
+{
+	Node* temp = head;
+	while (temp != nullptr) { cout << temp->x << " "; temp = temp->next; } cout << endl;
+	 
+
+}
+template <typename T>
+bool SortedLinkedList<T>::tru()
+{
+	if (head != nullptr) { return true; }
+	else return  false;
+}
+template <typename T>
+SortedLinkedList<T> SortedLinkedList<T>::merge(SortedLinkedList a, SortedLinkedList b)
+{
+	SortedLinkedList<T>c;
+	while (a.tru()*b.tru() != 0)
+	{
+		if (a.pop1() <= b.pop1())
+		{
+			c.push(a.pop());
+
+		}
+		else
+		{
+			c.push(b.pop());
+		}
+	}
+	if (a.tru() != 0) { while (a.tru() == 1) { c.push(a.pop()); } }
+	if (b.tru() != 0) { while (b.tru() == 1) { c.push(b.pop()); } }
+	//c.print();
+	return c;
+}
+template <typename T>
+SortedLinkedList<T> SortedLinkedList<T>::merge1(SortedLinkedList a, SortedLinkedList b)
+{
+	SortedLinkedList<T>c;
+	while (a.tru()*b.tru() != 0)
+	{if (a.pop1() <= b.pop1()){c.push(a.pop());}else{c.push(b.pop());}}
+	if (a.tru() != 0) { while (a.tru() == 1) { c.push(a.pop()); } }
+	if (b.tru() != 0) { while (b.tru() == 1) { c.push(b.pop()); } }
+	c.unique();
+	return c;
+}
+
+int main()
+{
+	int l1, l2;
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<> dis(1, 30);
+	
+		l1 = dis(gen);
+		cout << " l1:" << l1 << endl;
+        l2 = dis(gen);
+		cout << " l2:" << l2 << endl;
+	SortedLinkedList<int>a;//lista dwuk
+	SortedLinkedList<int>b;
+	int ar1[30]; //imp tabl
+	int ar2[30];
+	list<int> arr1;//std::list
+	list<int> arr2;
+	int l3 = 30;
+	int l4 = 30;
+	for (int i = 0; i < l1; i++)
+	{
+		uniform_int_distribution<> dis(1, l3);
+		l3 = dis(gen);
+		ar1[l1 - 1 - i] = l3; 
+		a.push(l3); 
+		arr1.push_back(l3);
+	}
+	
+	for (int i = 0; i < l2; i++)
+	{
+		uniform_int_distribution<> dis(1, l4);
+		l4 = dis(gen);
+		ar2[l2 - 1 - i] = l4; 
+		b.push(l4);
+		arr2.push_back(l4);
+	}
+	
+	SortedList <int> a1(ar1, l1);//imp tabl
+	SortedList <int> b1(ar2, l2);
+	cout << "tabl1:"; a1.print(); cout << endl;
+	cout << "tabl2:"; b1.print(); cout << endl;
+	cout << "L1:"; a.print(); cout << endl;//lista dwuk
+	cout << "L2:"; b.print(); cout << endl;
+//	a.unique();
+//	b.unique();
+//	cout << "L1:"; a.print(); cout << endl;
+//	cout << "L2:"; b.print(); cout << endl;
+//	SortedLinkedList<int> c = SortedLinkedList<int>::merge(a, b);
+//	cout << "merge list"; c.print(); cout << endl;
+	SortedLinkedList<int> cc = SortedLinkedList<int>::merge1(a, b);
+    cout << "merge list1 "; cc.print(); cout << endl;
+	SortedList<int> c1 = SortedList<int>::merge1(a1, b1);
+	cout << "merge tabl "; c1.print(); cout << endl;
+	
+	
+
+}
+
