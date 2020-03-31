@@ -1,0 +1,360 @@
+#include "pch.h"
+#include <iostream>
+using namespace std;
+constexpr size_t MAX_N = 60000;
+template<typename T>             // Klasa szablonowa
+class SortedLinkedList { // List przechowuje obiekty typu T
+public:	
+	struct iterator;          // Zagnieżdzona klasa iteratora
+
+	struct Node {       // Zagnieżdżona klasa węzła
+		T x;            // Element przechowywany przez węzeł listy
+		Node* prev;     // Wskaźnik do poprzedniego węzła
+		Node* next;     // Wskaźnik do kolejnego węzła
+		Node(T d) {     // Konstruktor jednoargumentowy.
+			x = d;      // Przypisanie wartości podczas konstrukcji.
+			next = nullptr;
+			prev = nullptr;
+		}
+	};
+	int s = 0;
+	Node* head;
+	Node* tail;
+	Node* temp;
+	iterator begin() {
+		
+		return iterator(head);
+	}
+	iterator end() {
+		return iterator(nullptr);
+	}
+    iterator erase(iterator i) // Usuwa element na pozycji 'i' i zwraca jego wartość
+    {
+		iterator temp2;
+		if (!i.temp) 
+		{
+			erase(tail);
+		    temp2 = head;
+		}
+		
+		else 
+		{ 
+			temp2 = i++;
+			erase(i);
+		}
+    }; 
+	T erase(Node* te);
+	
+	
+	 void push(T k);
+}; 
+
+template<typename T>
+struct SortedLinkedList<T>::iterator
+{
+
+	Node* temp;
+	iterator() : temp(head) {}
+	
+	iterator(Node* temp): temp(temp){}
+	
+	T& operator*() { return temp->x; }
+	
+	iterator& operator++()
+	{
+		if (temp) { temp = temp->next; }
+		return *this;
+	}
+	iterator operator++(int) {
+		Node* temp1;
+		if (temp) temp1 = temp->next;
+		else temp1 = temp;
+		iterator r(temp1);
+		return r;
+	}
+    iterator& operator--()
+	{
+		if (temp) { temp = temp->prev; }
+		return *this;
+	}
+	iterator operator--(int) {
+		Node* temp1;
+		if (temp) temp1 = temp->prev;
+		else temp1 = temp;
+		iterator r(temp1);
+		return r;
+	}
+	iterator& operator=(const iterator& it)
+	{
+		this->temp = it.temp;
+		return *this;
+	}
+	bool operator==(const iterator& a)const
+	{
+		return this->temp == a.temp;
+	}
+	bool operator!=(const iterator& a)const
+	{
+		return this->temp != a.temp;
+	}
+	
+};
+template <typename T>
+void SortedLinkedList<T>::push(T k)
+{
+	s++;
+	Node* temp = new Node(k);
+	if (head != nullptr) // sa elementy w liscie
+	{
+		if ((head->x) > k)//wstawianie przed head
+		{
+			temp->prev = nullptr;
+			temp->next = head;
+			head = temp;
+			temp->next->prev = temp;
+		}
+		else
+		{
+			if ((tail->x) <= k)//wstawianie po tail
+			{
+				//cout << " dla cem";
+				temp->next = nullptr;
+				temp->prev = tail;
+				tail = temp;
+				temp->prev->next = temp;
+			}
+			else //wstawianie miendzy head i tail
+			{
+				Node* temp1 = head;
+				while (((temp1->next) != nullptr) && ((temp1->next)->x < k))
+				{
+					temp1 = temp1->next;
+				}
+				temp->next = temp1->next;
+				temp->prev = temp1;
+				temp1->next->prev = temp;
+				temp1->next = temp;
+
+			}
+		}
+	}
+
+	else //pusta lista
+	{
+		temp->prev = nullptr;
+		temp->next = head;
+		head = temp;
+		tail = temp;
+		temp->next = nullptr;
+	}
+
+
+}
+template <typename T>
+T SortedLinkedList<T>::erase(Node* te)
+{
+	bool b = false;
+
+//	Node* temp = head;
+	if (te == head) {
+		T k = head->x;
+//		s--;
+		Node* temp = head;
+        if (head->next != nullptr)
+		{
+			head = temp->next;
+			temp->next->prev = nullptr;
+		}
+		else { head = nullptr; tail = nullptr; }
+		delete temp;
+		b = true;
+		return k;
+	}
+	if (b == false) {
+		if (te == tail)
+		{
+			T k = tail->x;
+//			s--;
+			Node* temp = tail;
+			if (tail->prev != nullptr)
+			{
+				tail = temp->prev;
+				temp->prev->next = nullptr;
+			}
+			else { tail = nullptr; head = nullptr; }
+			delete temp;
+			b = true;
+			return k;
+
+		}
+	}
+	if (b == false)
+	{
+		Node* temp = head;
+		while (te!=temp)
+		{
+			temp = temp->next;
+		}
+//		s--;
+		T k = temp->next->x;
+		temp->next = (temp->next)->next;
+		temp->next->prev = temp;
+		return k;
+	}
+}
+
+constexpr size_t capacity = 40;
+template <typename T>
+class SortedList 
+{
+private:
+	T *arr;
+	size_t s;
+
+public:
+	SortedList(T arr[], size_t s);
+	SortedList(SortedList<T>&& a);
+	void print() {
+		for (int i = 0; i < s; i++)
+		{
+			cout << arr[i] << " ";
+		}
+	};
+	struct iterator;
+		double* ptr;
+		int size() { return s; };
+		void push(T x)  
+		{
+			arr[s] = x;
+			int j = s;
+			while (arr[j] < arr[j - 1])
+			{
+				T k = arr[j];
+				arr[j] = arr[j - 1];
+				arr[j - 1] = k;
+				j--;
+			}
+			s++;
+		}
+		struct iterator;
+		iterator begin() {
+			return iterator(arr);
+		}
+		
+		iterator end() {
+			return iterator(arr + s);
+		}
+
+		iterator erase(iterator it) {
+			s--;
+			iterator e = this->end();
+			iterator next = ++it;
+			while (it != e) {
+				*it = *(it + 1);
+				it = it + 1;
+			}
+			return next;
+		}
+};
+
+	template<typename T>
+	struct SortedList<T>::iterator {
+		T* data;
+		iterator(T* ar) : data(ar) {
+
+		};
+		T& operator*() {
+			return *data;
+		}
+		iterator& operator++() {
+			++data;
+			return *this;
+		}
+		iterator operator++(int) {
+			T* new_d = this->data++;
+			iterator res(new_d);
+			return res;
+		}
+		iterator operator+(int i) {
+			T* new_d = this->data + i;
+			iterator res(new_d);
+			return res;
+		}
+
+		iterator operator-(int i) {
+			T* new_d = this->data - i;
+			iterator res(new_d);
+			return res;
+		}
+		iterator& operator--() {
+			--data;
+			return *this;
+		}
+
+		iterator operator--(int) {
+			T* new_d = this->data--;
+			iterator res(new_d);
+			return res;
+		}
+
+		iterator& operator=(const iterator& it) {
+			this->data = it.data;
+			return *this;
+		}
+
+		bool operator==(const iterator& a) const {
+			return this->data == a.data;
+		}
+		bool operator!=(const iterator& a) const {
+			return this->data != a.data;
+		}
+	};
+	
+	template <typename T>
+	SortedList<T>::SortedList(T a[], size_t s) {
+		arr = new T[capacity];
+		this->s = s;
+		for (int i = 0; i < s; i++)
+		{
+			arr[i] = a[i];
+		}
+	}
+
+	template<typename T>
+	SortedList<T>::SortedList(SortedList<T>&& a) : arr(new T[MAX_N]), s(0)
+	{
+		
+		for ( int i = 0; i < a.size(); i++) {
+			push(a.at(i));
+		}
+	}
+
+	
+
+
+
+
+
+int main()
+{
+	SortedLinkedList<int> a;
+	a.push(5);
+	a.push(7);
+	a.push(8);
+	for (const int e : a) {
+		cout << e << endl;
+	}
+   
+
+	int arr[1] = {2};
+	SortedList <int> b(arr, 1);
+
+	b.push(5);
+	b.push(7);
+	b.push(8);
+	for (const int e : b) {
+		cout << e << endl;
+	}
+
+}
+
